@@ -5,6 +5,17 @@ describe "Authentification" do
 
 	describe "authorization" do
 
+		describe "as an admin user" do
+			let(:admin) { FactoryGirl.create(:admin) }
+    		before { sign_in admin, no_capybara: true }
+
+			describe "should not be able to delete themselves via destroy action" do
+        		specify do 
+          		expect { delete user_path(admin) }.not_to change(User, :count).by(-1)
+        		end
+      		end
+      	end
+
 		describe "as non-admin user" do
 			let(:user) { FactoryGirl.create(:user) }
 			let(:non_admin) { FactoryGirl.create(:user) }
@@ -17,22 +28,47 @@ describe "Authentification" do
 			end
 		end
 
+		describe "for signed-in users" do
+			let(:user) { FactoryGirl.create(:user) }
+			before {sign_in user, no_capybara:true}
+
+			describe "cannot access #new action" do
+				before { get new_user_path }
+				specify { response.should redirect_to(root_path) }
+			end
+
+			describe "cannot access #create action" do
+        		before { post users_path(user) }
+        		specify { response.should redirect_to(root_path) }
+      		end
+    	end
+
 		describe "for non-signed in users" do
 			let(:user) { FactoryGirl.create(:user) }
 
-			describe "when attempting to visit an unprotected page" do
+			describe "when attempting to visit an protected page" do
 				before do
 					visit edit_user_path(user)
-					fill_in "Email", 	with: user.email
-					fill_in "Password", with: user.password
-					click_button "Sign in"
+					sign_in user
 				end
 
 				describe "after signing in" do
 					it "should render the desired protected page" do
 						expect(page).to have_title('Edit user')
 					end
-				end
+
+					describe "when signing in again" do
+					  before do
+		              click_link "Sign out"
+		              visit signin_path
+		              sign_in user
+		            	end
+
+		              it "should render the default profile page" do
+		              	expect(page).to have_title(user.name)
+		              end
+		            end
+		        end
 			end
 
 			describe "in the Users controller" do 
@@ -80,6 +116,9 @@ describe "Authentification" do
 
 		describe "signin" do
 			before {visit signin_path}
+
+			it { should_not have_link('Profile') }
+			it { should_not have_link('Settings') }
 
 			describe "with invalid information" do
 				before { click_button "Sign in" }
