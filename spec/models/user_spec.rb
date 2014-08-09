@@ -14,15 +14,15 @@ describe User do
   it { should respond_to(:password_confirmation) }
   it { should respond_to(:authenticate) }
   it { should respond_to(:remember_token) }
-
   it { should respond_to(:admin) }
 
-  it { should be_valid }
-  it { should_not be_admin}
 
-  describe "with admin attribute set to 'true'" do
+  it { should be_valid }
+  it { should_not be_admin }
+
+  describe "with admin attributes set to true" do
     before do
-      @user.save!
+      @user.save! 
       @user.toggle!(:admin)
     end
 
