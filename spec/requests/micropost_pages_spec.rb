@@ -26,5 +26,15 @@ describe "MicropostPages" do
 				expect { click_button "Post" }.to change(Micropost, :count).by(1)
 			end
 		end
+
+		describe "pagination" do
+      		let(:user) { FactoryGirl.create(:user) }
+      		before do 
+      			31.times { FactoryGirl.create(:micropost, user: user, content: "helloe hello") }
+      			sign_in user
+      			visit root_path
+      			page.should have_selector("div.pagination")
+      		end
+    	end
   	end
 end

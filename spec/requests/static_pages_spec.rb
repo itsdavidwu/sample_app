@@ -46,6 +46,13 @@ describe "Static pages" do
           expect(page).to have_selector("li##{item.id}", text: item.content)
         end
       end
+
+      describe "should have micropost counts" do
+        before { click_link "delete", match: :first }
+          it "should be singular when count eq to 1" do
+            expect(page).to have_selector("span", text: "1 micropost")
+          end
+      end
     end
   end
 

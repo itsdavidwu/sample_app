@@ -28,7 +28,7 @@ describe "Authentification" do
 			end
 		end
 
-		describe "for signed-in users" do
+		describe "as signed-in user" do
 			let(:user) { FactoryGirl.create(:user) }
 			before {sign_in user, no_capybara:true}
 
@@ -41,9 +41,15 @@ describe "Authentification" do
         		before { post users_path(user) }
         		specify { response.should redirect_to(root_path) }
       		end
+
+      		describe "cannot delete other's microposts" do
+      			let(:other_user) { FactoryGirl.create(:user) }
+      			before { visit user_path(other_user) }
+      			it { should_not have_link('delete') }
+      		end
     	end
 
-		describe "for non-signed in users" do
+		describe "as non-signed in user" do
 			let(:user) { FactoryGirl.create(:user) }
 
 			describe "when attempting to visit an protected page" do
